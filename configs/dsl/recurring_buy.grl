@@ -1,0 +1,35 @@
+rule CreditCardPaymentTypeEnabled "Credit Card payment type enabled" salience 10 {
+    when
+        SystemConfig.RecurringBuyPurchaseByCreditCardEnabled || 
+            SystemConfig.RecurringBuyPurchaseByCreditCardInternalTesters.Include(User.Email)
+    then
+        Result.PaymentTypeEnabled = true;
+        Retract("CreditCardPaymentTypeEnabled");
+}
+
+rule StableCoinPaymentTypeEnabled "Stable coin payment type enabled" salience 10 {
+    when
+        SystemConfig.RecurringBuyPurchaseByStableCoinEnabled || 
+            SystemConfig.RecurringBuyPurchaseByStableCoinInternalTesters.Include(User.Email)
+    then
+        Result.PaymentTypeEnabled = true;
+        Retract("StableCoinPaymentTypeEnabled");
+}
+
+rule FiatWalletPaymentTypeEnabled "Fiat wallet payment type enabled" salience 10 {
+    when
+        SystemConfig.RecurringBuyPurchaseByFiatWalletEnabled || 
+            SystemConfig.RecurringBuyPurchaseByFiatWalletInternalTesters.Include(User.Email)
+    then
+        Result.PaymentTypeEnabled = true;
+        Retract("FiatWalletPaymentTypeEnabled");
+}
+
+rule RecurringBuyEnabled "Recurring buy enabled" salience 20 {
+    when
+        (SystemConfig.RecurringBuyEnabled || User.Config.RecurringBuyEnabled) && 
+            Result.PaymentTypeEnabled
+    then
+        Result.Enabled = true;
+        Retract("RecurringBuyEnabled");
+}
