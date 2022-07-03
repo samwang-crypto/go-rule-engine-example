@@ -1,35 +1,38 @@
 rule CreditCardPaymentTypeEnabled "Credit Card payment type enabled" salience 10 {
     when
-        SystemConfig.RecurringBuyPurchaseByCreditCardEnabled || 
-            SystemConfig.RecurringBuyPurchaseByCreditCardInternalTesters.Include(User.Email)
+        SystemConfig.BooleanEqual("RecurringBuyPurchaseByCreditCardEnabled", true) || 
+            SystemConfig.Include("RecurringBuyPurchaseByCreditCardInternalTesters", User.Email)
     then
-        Result.PaymentTypeEnabled = true;
+        Result.Value["PaymentTypeEnabled"] = true;
+        Changed("Result.Value");
         Retract("CreditCardPaymentTypeEnabled");
 }
 
 rule StableCoinPaymentTypeEnabled "Stable coin payment type enabled" salience 10 {
     when
-        SystemConfig.RecurringBuyPurchaseByStableCoinEnabled || 
-            SystemConfig.RecurringBuyPurchaseByStableCoinInternalTesters.Include(User.Email)
+        SystemConfig.BooleanEqual("RecurringBuyPurchaseByStableCoinEnabled", true) || 
+            SystemConfig.Include("RecurringBuyPurchaseByStableCoinInternalTesters", User.Email)
     then
-        Result.PaymentTypeEnabled = true;
+        Result.Value["PaymentTypeEnabled"] = true;
+        Changed("Result.Value");
         Retract("StableCoinPaymentTypeEnabled");
 }
 
 rule FiatWalletPaymentTypeEnabled "Fiat wallet payment type enabled" salience 10 {
     when
-        SystemConfig.RecurringBuyPurchaseByFiatWalletEnabled || 
-            SystemConfig.RecurringBuyPurchaseByFiatWalletInternalTesters.Include(User.Email)
+        SystemConfig.BooleanEqual("RecurringBuyPurchaseByFiatWalletEnabled", true) || 
+            SystemConfig.Include("RecurringBuyPurchaseByFiatWalletInternalTesters", User.Email)
     then
-        Result.PaymentTypeEnabled = true;
+        Result.Value["PaymentTypeEnabled"] = true;
+        Changed("Result.Value");
         Retract("FiatWalletPaymentTypeEnabled");
 }
 
-rule RecurringBuyEnabled "Recurring buy enabled" salience 20 {
+rule RecurringBuyEnabled "Recurring buy enabled" {
     when
-        (SystemConfig.RecurringBuyEnabled || User.Config.RecurringBuyEnabled) && 
-            Result.PaymentTypeEnabled
+        (SystemConfig.BooleanEqual("RecurringBuyEnabled", true) || User.Config.RecurringBuyEnabled) && 
+            Result.Value.Len() > 0 && Result.BooleanEqual("PaymentTypeEnabled", true)
     then
-        Result.Enabled = true;
+        Result.Value["RecurringBuyEnabled"] = true;
         Retract("RecurringBuyEnabled");
 }

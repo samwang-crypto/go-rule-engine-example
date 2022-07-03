@@ -10,8 +10,14 @@ import (
 	"github.com/monacohq/go-rule-engine-example/configs"
 )
 
+const (
+	UserKey         = "User"
+	SystemConfigKey = "SystemConfig"
+	ResultKey       = "Result"
+)
+
 type IKnowledgeLibrary interface {
-	GetLoadedFeatures() []*configs.Feature
+	GetLoadedFeatures() map[string]*configs.Feature
 	GetLibrary() *ast.KnowledgeLibrary
 	LoadRules() error
 }
@@ -21,8 +27,12 @@ type knowledgeLibraryImpl struct {
 	features []*configs.Feature
 }
 
-func (k *knowledgeLibraryImpl) GetLoadedFeatures() []*configs.Feature {
-	return k.features
+func (k *knowledgeLibraryImpl) GetLoadedFeatures() map[string]*configs.Feature {
+	results := make(map[string]*configs.Feature)
+	for _, f := range k.features {
+		results[f.Name] = f
+	}
+	return results
 }
 
 func (k *knowledgeLibraryImpl) GetLibrary() *ast.KnowledgeLibrary {

@@ -11,40 +11,49 @@ import (
 
 type IRuleEngine interface {
 	computeContext(fact *models.Fact) (ast.IDataContext, error)
-	Execute(fact *models.Fact, expectation interface{}, features ...string) error
+	Execute(fact *models.Fact, expectation *models.Result, features ...string) error
 }
 
 type ruleEngineImpl struct {
 	engine           *engine.GruleEngine
+	systemConfigs    *models.SystemConfig
 	knowledgeLibrary rules.IKnowledgeLibrary
 }
 
 func (r *ruleEngineImpl) computeContext(fact *models.Fact) (ast.IDataContext, error) {
-	var resultError error
+	var errResult error
 	dataCtx := ast.NewDataContext()
 
-	err := dataCtx.Add("User", fact.User)
-	err = dataCtx.Add("SystemConfig", fact.SystemConfig)
+	err := dataCtx.Add(rules.UserKey, fact.User)
+	err = dataCtx.Add(rules.SystemConfigKey, r.systemConfigs)
 	if err != nil {
-		resultError = multierror.Append(resultError, err)
+		errResult = multierror.Append(errResult, err)
 	}
 
-	return dataCtx, resultError
+	return dataCtx, errResult
 }
 
-func (r *ruleEngineImpl) Execute(fact *models.Fact, expectation interface{}, features ...string) error {
+func (r *ruleEngineImpl) Execute(fact *models.Fact, expectation *models.Result, features ...string) error {
+	var errResult error
 	dataCtx, err := r.computeContext(fact)
 	if err != nil {
+		errResult = multierror.Append(errResult, err)
 		return err
 	}
 
-	for _, feature := range r.knowledgeLibrary.GetLoadedFeatures() {
-		kb := r.knowledgeLibrary.GetLibrary().NewKnowledgeBaseInstance(feature.Name, feature.Version)
-		err = dataCtx.Add("Result", expectation)
-		err = r.engine.Execute(dataCtx, kb)
+	loadedFeatures := r.knowledgeLibrary.GetLoadedFeatures()
+	for _, featureName := range features {
+		if cnf, ok := loadedFeatures[featureName]; ok {
+			kb := r.knowledgeLibrary.GetLibrary().NewKnowledgeBaseInstance(cnf.Name, cnf.Version)
+			err = dataCtx.Add(rules.ResultKey, expectation)
+			err = r.engine.Execute(dataCtx, kb)
+			if err != nil {
+				errResult = multierror.Append(errResult, err)
+			}
+		}
 	}
 
-	return err
+	return errResult
 }
 
 func New(opts ...Option) IRuleEngine {
