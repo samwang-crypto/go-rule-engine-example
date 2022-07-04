@@ -3,7 +3,7 @@ rule CreditCardPaymentTypeEnabled "Credit Card payment type enabled" salience 10
         SystemConfig.BooleanEqual("RecurringBuyPurchaseByCreditCardEnabled", true) || 
             SystemConfig.Include("RecurringBuyPurchaseByCreditCardInternalTesters", User.Email)
     then
-        Result.Value["PaymentTypeEnabled"] = true;
+        Result.Value["credit_card_payment_type"] = true;
         Changed("Result.Value");
         Retract("CreditCardPaymentTypeEnabled");
 }
@@ -13,7 +13,7 @@ rule StableCoinPaymentTypeEnabled "Stable coin payment type enabled" salience 10
         SystemConfig.BooleanEqual("RecurringBuyPurchaseByStableCoinEnabled", true) || 
             SystemConfig.Include("RecurringBuyPurchaseByStableCoinInternalTesters", User.Email)
     then
-        Result.Value["PaymentTypeEnabled"] = true;
+        Result.Value["stable_coin_payment_type"] = true;
         Changed("Result.Value");
         Retract("StableCoinPaymentTypeEnabled");
 }
@@ -23,7 +23,7 @@ rule FiatWalletPaymentTypeEnabled "Fiat wallet payment type enabled" salience 10
         SystemConfig.BooleanEqual("RecurringBuyPurchaseByFiatWalletEnabled", true) || 
             SystemConfig.Include("RecurringBuyPurchaseByFiatWalletInternalTesters", User.Email)
     then
-        Result.Value["PaymentTypeEnabled"] = true;
+        Result.Value["fiat_wallet_payment_type"] = true;
         Changed("Result.Value");
         Retract("FiatWalletPaymentTypeEnabled");
 }
@@ -31,8 +31,10 @@ rule FiatWalletPaymentTypeEnabled "Fiat wallet payment type enabled" salience 10
 rule RecurringBuyEnabled "Recurring buy enabled" {
     when
         (SystemConfig.BooleanEqual("RecurringBuyEnabled", true) || User.Config.RecurringBuyEnabled) && 
-            Result.Value.Len() > 0 && Result.BooleanEqual("PaymentTypeEnabled", true)
+            Result.Value.Len() > 0 && 
+            (Result.BooleanEqual("credit_card_payment_type", true) || 
+                Result.BooleanEqual("stable_coin_payment_type_enabled", true) || Result.BooleanEqual("fiat_wallet_payment_type_enabled", true)) 
     then
-        Result.Value["RecurringBuyEnabled"] = true;
+        Result.Value["recurring_buy"] = true;
         Retract("RecurringBuyEnabled");
 }

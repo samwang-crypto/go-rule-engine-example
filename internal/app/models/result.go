@@ -10,6 +10,12 @@ type Result struct {
 	Value map[string]interface{} `json:"value"`
 }
 
+func (r *Result) ApplyEntityRestrictions(features []string) {
+	for _, feature := range features {
+		r.Value[feature] = false
+	}
+}
+
 // since we are using interface{} and generate results dynamically, we need to
 // provide a casting function to convert the interface{} to the proper type
 func (r *Result) BooleanEqual(key string, value bool) bool {

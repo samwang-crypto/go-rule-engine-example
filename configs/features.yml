@@ -2,4 +2,7 @@ features:
   - name: "recurring_buy"
     dsl_location: "recurring_buy.grl"
     version: "1"
+  - name: "entity_restriction"
+    dsl_location: "entity_restriction.grl"
+    version: "1"
 

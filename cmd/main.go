@@ -14,7 +14,10 @@ func main() {
 	cfg := configs.GetCurrentConfig()
 
 	// preload system configuration from the database / redis
-	systemConfig := &models.SystemConfig{Value: make(map[string]interface{})}
+	systemConfig := &models.SystemConfig{
+		Value:              make(map[string]interface{}),
+		EntityRestrictions: &models.EntityRestrictions{Value: map[string][]models.ForbiddenFeature{}},
+	}
 	systemConfig.Load()
 
 	// initialize knowledge base from dsl files
@@ -31,15 +34,18 @@ func main() {
 	// it should be passed in from request owner.
 	fact := &models.Fact{
 		User: &models.User{
-			Email: "sam.wang@crypto.com",
+			Email:              "sam.wang@crypto.com",
+			EntityId:           "australia",
+			ResidentialAddress: "sample_address",
 			Config: &models.UserConfig{
-				RecurringBuyEnabled: true,
+				RecurringBuyEnabled:  true,
+				HasCryptoFiatAccount: true,
 			},
 		},
 	}
 	// we don't know what's inside DSL, using map with interface{} to store final results
 	expectation := &models.Result{Value: map[string]interface{}{}}
-	validateFeatures := []string{"recurring_buy"}
+	validateFeatures := []string{"recurring_buy", "entity_restriction"}
 	err := eng.Execute(fact, expectation, validateFeatures...)
 
 	log.Printf("error: %v\n", err)

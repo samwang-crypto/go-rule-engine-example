@@ -1,0 +1,18 @@
+rule ApplyInitialEntityRestrictionWithFiatAccount "Apply entity restrictions has fiat account" salience 10 {
+    when
+        true 
+    then
+        Result.ApplyEntityRestrictions(SystemConfig.EntityRestrictions.GetRestrictions(User.EntityId, User.Config.HasCryptoFiatAccount));
+        Changed("Result.Value");
+        Retract("ApplyEntityRestrictionWithFiatAccount");
+}
+
+rule ApplyEntityRestrictionWithResidentialAddress "Apply entity restrictions with residential address" salience 30 {
+    when
+        User.ResidentialAddress.Len() > 0
+    then
+        Result.ApplyEntityRestrictions(SystemConfig.EntityRestrictions.GetRestrictionsWithPersonalInformationRequired(User.EntityId, "residential_address:submit"));
+        Changed("Result.Value");
+        Retract("ApplyEntityRestrictionWithResidentialAddress");
+        Complete();
+}
