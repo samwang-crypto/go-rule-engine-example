@@ -11,6 +11,12 @@ import (
 )
 
 func main() {
+	var err error
+	time.Local, err = time.LoadLocation("Asia/Hong_Kong")
+	if err != nil {
+		log.Printf("error loading location: %v\n", err)
+	}
+
 	configs.Load()
 	cfg := configs.GetCurrentConfig()
 
@@ -37,11 +43,14 @@ func main() {
 		User: &models.User{
 			UUID:               "123e4567-e89b-12d3-a456-426614174000",
 			Email:              "sam.wang@crypto.com",
-			EntityId:           "australia",
+			EntityId:           "canada",
 			ResidentialAddress: "sample_address",
 			Config: &models.UserConfig{
 				RecurringBuyEnabled:  true,
 				HasCryptoFiatAccount: false,
+			},
+			KycDocument: &models.KycDocument{
+				AppliedAt: "2020-05-27 15:00:00",
 			},
 		},
 	}
@@ -50,7 +59,7 @@ func main() {
 	validateFeatures := []string{"recurring_buy", "entity_restriction"}
 
 	start := time.Now()
-	err := eng.Execute(fact, expectation, validateFeatures...)
+	err = eng.Execute(fact, expectation, validateFeatures...)
 	elapsed := time.Since(start)
 	log.Printf("Execute took %s", elapsed)
 	log.Printf("result: %s, err: %v\n", expectation.ToJson(), err)

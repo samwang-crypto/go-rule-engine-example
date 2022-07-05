@@ -39,6 +39,18 @@ func (r *Result) UpdateRestrictionsWithRequiredInfo(entityId string, requiredInf
 	}
 }
 
+func (r *Result) UpdateRestrictionsWithAppliedAt(entityId string, source map[string][]ForbiddenFeature) {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+	if restriction, ok := source[entityId]; ok {
+		for _, feature := range restriction {
+			if helper.Contains(skipForAppliedAfter, feature.Feature) {
+				delete(r.Value, feature.Feature)
+			}
+		}
+	}
+}
+
 // since we are using interface{} and generate results dynamically, we need to
 // provide a casting function to convert the interface{} to the proper type
 func (r *Result) BooleanEqual(key string, value bool) bool {

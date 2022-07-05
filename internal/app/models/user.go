@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 // user's current configuration
 type UserConfig struct {
 	RecurringBuyEnabled    bool `json:"recurring_buy_enabled"`
@@ -13,12 +11,13 @@ type UserConfig struct {
 
 // user's KYC document state
 type KycDocument struct {
-	IssuingCountry           string    `json:"issuing_country"`
-	UsState                  string    `json:"us_state"`
-	Type                     string    `json:"type"`
-	Verification             string    `json:"verification"`
-	TermsOfServiceAcceptedAt time.Time `json:"terms_of_service_accepted_at"`
-	ApprovedAt               time.Time `json:"approved_at"`
+	IssuingCountry           string `json:"issuing_country"`
+	UsState                  string `json:"us_state"`
+	Type                     string `json:"type"`
+	Verification             string `json:"verification"`
+	TermsOfServiceAcceptedAt string `json:"terms_of_service_accepted_at"`
+	ApprovedAt               string `json:"approved_at"`
+	AppliedAt                string `json:"applied_at"`
 }
 
 // stores the user's information as facts

@@ -7,7 +7,17 @@ rule ApplyInitialEntityRestrictionWithFiatAccount "Apply entity restrictions has
         Retract("ApplyInitialEntityRestrictionWithFiatAccount");
 }
 
-rule ApplyEntityRestrictionWithResidentialAddress "Apply entity restrictions with residential address" salience 9 {
+rule CaKycApprovedBeforeEffectiveTime "Canada KYC approved before effective time" salience 9 {
+    when
+        User.EntityId == "canada" &&
+            SystemConfig.TimeLessThan("CaAppliedForKycApprovedAfter", User.KycDocument.AppliedAt) 
+    then
+        Result.UpdateRestrictionsWithAppliedAt(User.EntityId, SystemConfig.EntityRestrictions);
+        Changed("Result.Value");
+        Retract("CaKycApprovedBeforeEffectiveTime");
+}
+
+rule ApplyEntityRestrictionWithResidentialAddress "Apply entity restrictions with residential address" salience 8 {
     when
         User.ResidentialAddress.Len() > 0
     then
