@@ -4,7 +4,7 @@ import "golang.org/x/exp/slices"
 
 type SystemConfig struct {
 	Value              map[string]interface{}
-	EntityRestrictions *EntityRestrictions
+	EntityRestrictions EntityRestrictions
 }
 
 // this Load function is used to load the system config from the database / redis
@@ -19,22 +19,7 @@ func (s *SystemConfig) Load() error {
 	s.Value["RecurringBuyPurchaseByFiatWalletEnabled"] = false
 	s.Value["RecurringBuyPurchaseByFiatWalletInternalTesters"] = []string{}
 
-	s.EntityRestrictions.Value["singapore"] = []ForbiddenFeature{
-		ForbiddenFeature{Feature: "sepa_deposit"},
-		ForbiddenFeature{Feature: "au_bpay_deposit"},
-		ForbiddenFeature{Feature: "au_npp_deposit"},
-		ForbiddenFeature{Feature: "au_bpay_account_creation"},
-		ForbiddenFeature{Feature: "sepa_account_creation"},
-		ForbiddenFeature{Feature: "au_npp_account_creation"},
-		ForbiddenFeature{Feature: "eur_fiat_to_crypto"},
-		ForbiddenFeature{Feature: "eur_to_card_top_up"},
-		ForbiddenFeature{Feature: "eur_crypto_to_fiat"},
-		ForbiddenFeature{Feature: "aud_crypto_to_fiat"},
-		ForbiddenFeature{Feature: "aud_fiat_to_crypto"},
-		ForbiddenFeature{Feature: "aud_to_card_top_up"},
-	}
-
-	s.EntityRestrictions.Value["australia"] = []ForbiddenFeature{
+	s.EntityRestrictions["australia"] = []ForbiddenFeature{
 		ForbiddenFeature{Feature: "fiat_withdrawal", RequiredPersonalInformation: "residential_address:submit"},
 		ForbiddenFeature{Feature: "pay_your_friends", RequiredPersonalInformation: "residential_address:submit"},
 		ForbiddenFeature{Feature: "crypto_withdrawal", RequiredPersonalInformation: "residential_address:submit"},
