@@ -1,10 +1,10 @@
-rule ApplyInitialEntityRestrictionWithFiatAccount "Apply entity restrictions has fiat account" salience 10 {
+rule ApplyInitialEntityRestrictions "Apply entity restrictions" salience 10 {
     when
-        true 
+        User.EntityId.Len() > 0
     then
         Result.UpdateRestrictions(User.EntityId, User.Config.HasCryptoFiatAccount, SystemConfig.EntityRestrictions);
         Changed("Result.Value");
-        Retract("ApplyInitialEntityRestrictionWithFiatAccount");
+        Retract("ApplyInitialEntityRestrictions");
 }
 
 rule CaKycApprovedBeforeEffectiveTime "Canada KYC approved before effective time" salience 9 {

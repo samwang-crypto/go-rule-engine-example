@@ -36,5 +36,6 @@ rule RecurringBuyEnabled "Recurring buy enabled" salience 7 {
                 Result.BooleanEqual("stable_coin_payment_type_enabled", true) || Result.BooleanEqual("fiat_wallet_payment_type_enabled", true)) 
     then
         Result.Value["recurring_buy"] = true;
+        Changed("Result.Value");
         Retract("RecurringBuyEnabled");
 }
